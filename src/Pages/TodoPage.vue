@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Tasklist from "../Tasklist.vue";
+import Tasklist from "../components/Tasklist.vue";
 export default {
     name : "TodoPage",
     components :{
