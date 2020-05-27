@@ -1,27 +1,27 @@
-<template>
+<template> <!--HTML Structure -->
     <div class="container">
         <div class="task-zone">
 
-            <div class="drop-zone"> <!-- Todo object-->
+            <div class="drop-zone" @drop="onDrop($event,'todo')" @dragenter.prevent @dragover.prevent> <!-- Todo object-->
                 <h1> TO-DO </h1>
-                <div class="drag-el" v-for="task in todoList" :key="task.id">{{task.title}}</div> <!--Item A-->
+                <div class="drag-el" draggable @dragstart="onStart($event,task)" v-for="task in todoList" :key="task.id">{{task.title}}</div> <!--Item A-->
             </div>
 
-            <div class="drop-zone"> <!--Doing object-->
+            <div class="drop-zone" @drop="onDrop($event,'doing')" @dragenter.prevent @dragover.prevent > <!--Doing object-->
                 <h1> Doing </h1>
-                <div class="drag-el" v-for="task in doingList" :key="task.id">{{task.title}}</div> <!--Item B-->
+                <div class="drag-el" draggable @dragstart="onStart($event,task)"  v-for="task in doingList" :key="task.id">{{task.title}}</div> <!--Item B-->
             </div>
 
-            <div class="drop-zone">  <!-- Doing object-->
+            <div class="drop-zone" @drop="onDrop($event,'done')" @dragenter.prevent @dragover.prevent >  <!-- Doing object-->
                 <h1> Done </h1>
-                <div class="drag-el" v-for="task in doneList" :key="task.id">{{task.title}}</div> <!--Item C-->
+                <div class="drag-el" draggable @dragstart="onStart($event,task)" v-for="task in doneList" :key="task.id">{{task.title}}</div> <!--Item C-->
             </div>
 
         </div>
     </div>
 </template>
-    
-<script>
+
+<script> //JS Strcture
 export default {
     name : 'Tasklist',
     data(){ //Item List
@@ -57,19 +57,31 @@ export default {
     },
     computed:{ //Filler Status
         todoList(){
-            return this.task.filter(task => task.status =="todo")
+            return this.task.filter(task => task.status == 'todo')
         },
         doingList(){
-            return this.task.filter(task => task.status =="doing")
+            return this.task.filter(task => task.status == 'doing')
         },
         doneList(){
-             return this.task.filter(task => task.status =="done")
+             return this.task.filter(task => task.status == 'done')
         }
+    },
+    methods:{
+        onStart(e,task){
+            e.dataTransfer.dropEffect = "move"
+            e.dataTransfer.effectAllowed ="move"
+            e.dataTransfer.setData('taskID', task.id)
+        },
+        onDrop(e,newstatus){
+            const taskId = e.dataTransfer.getData('taskID')
+            const task = this.task.find(task => task.id == taskId)
+            task.status = newstatus
+        }   
     }
 }
 </script>
 
-<style scoped>
+<style scoped> /* CSS Stucture */
 .container{
     margin: 30px;
 }
