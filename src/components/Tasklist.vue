@@ -1,135 +1,112 @@
-<template> <!--HTML Structure -->
+<template>
     <div class="container">
         <div class="add-task">
             <input id="new-task" type="text" v-model="newTask">
-            <button type="button" @click="addTask(newTask)">Add New Task </button>
+            <button type="button" @click="addTask(newTask)">Add New Task</button>
         </div>
         <div class="task-zone">
-
-            <div class="drop-zone" @drop="onDrop($event,'todo')" @dragenter.prevent @dragover.prevent> <!-- Todo object-->
-                <h1> TO-DO </h1>
-                <div class="drag-el" draggable @dragstart="onStart($event,task)" v-for="task in todoList" :key="task.id">
-                    <span v-if="editTask != task.id">{{task.title}}</span>
+            <div class="drop-zone" @drop="onDrop($event, 'todo')" @dragover.prevent @dragenter.prevent>
+                <h1>To-Do</h1>
+                <div class="drag-el" v-for="task in taskTodo" :key="task.id" draggable @dragstart="onStart($event, task)">
+                    <span v-if="editTask != task.id">{{ task.title }}</span>
                     <input v-else class="edit-task" type="text" v-model="task.title">
-
-                    <button v-if="editTask != task.id"  type="button" @click="onEdit(task)"> Edit </button>
-                    <button v-else type="button" @click="EditedTask(task)"> Save </button>
-
-                    <button type="button" @click="deleteTask(task)"> Delete </button>
-                </div> 
+                    <br>
+                    <button v-if="editTask != task.id" type="button" @click="onEdit(task)">Edit</button>
+                    <button v-else type="button" @click="editedTask(task)">Save</button>
+                    <button type="button" @click="deleteTask(task.id)">Delete</button>
+                </div>
             </div>
-
-            <div class="drop-zone" @drop="onDrop($event,'doing')" @dragenter.prevent @dragover.prevent > <!--Doing object-->
-                <h1> Doing </h1>
-                <div class="drag-el" draggable @dragstart="onStart($event,task)"  v-for="task in doingList" :key="task.id">
-                     <span v-if="editTask != task.id">{{task.title}}</span>
+            <div class="drop-zone" @drop="onDrop($event, 'doing')" @dragover.prevent @dragenter.prevent>
+                <h1>Doing</h1>
+                <div class="drag-el" v-for="task in taskDoing" :key="task.id" draggable @dragstart="onStart($event, task)">
+                    <span v-if="editTask != task.id">{{ task.title }}</span>
                     <input v-else class="edit-task" type="text" v-model="task.title">
-                    
-                    <button v-if="editTask != task.id"  type="button" @click="onEdit(task)"> Edit </button>
-                    <button v-else type="button" @click="EditedTask(task)"> Save </button>
-
-                    <button type="button" @click="deleteTask(task)"> Delete </button>
-                </div> <!--Item B-->
+                    <br>
+                    <button v-if="editTask != task.id" type="button" @click="onEdit(task)">Edit</button>
+                    <button v-else type="button" @click="editedTask(task)">Save</button>
+                    <button type="button" @click="deleteTask(task.id)">Delete</button>
+                </div>
             </div>
-
-            <div class="drop-zone" @drop="onDrop($event,'done')" @dragenter.prevent @dragover.prevent >  <!-- Doing object-->
-                <h1> Done </h1>
-                <div class="drag-el" draggable @dragstart="onStart($event,task)" v-for="task in doneList" :key="task.id">
-                     <span v-if="editTask != task.id">{{task.title}}</span>
+            <div class="drop-zone" @drop="onDrop($event, 'done')" @dragover.prevent @dragenter.prevent>
+                <h1>Done</h1>
+                <div class="drag-el" v-for="task in taskDone" :key="task.id" draggable @dragstart="onStart($event, task)">
+                    <span v-if="editTask != task.id">{{ task.title }}</span>
                     <input v-else class="edit-task" type="text" v-model="task.title">
-
-                    <button v-if="editTask != task.id"  type="button" @click="onEdit(task)"> Edit </button>
-                    <button v-else type="button" @click="EditedTask(task)"> Save </button>
-
-                    <button type="button" @click="deleteTask(task)"> Delete </button>
-                </div> <!--Item C-->
+                    <br>
+                    <button v-if="editTask != task.id" type="button" @click="onEdit(task)">Edit</button>
+                    <button v-else type="button" @click="editedTask(task)">Save</button>
+                    <button type="button" @click="deleteTask(task.id)">Delete</button>
+                </div>
             </div>
-
         </div>
     </div>
 </template>
 
-<script> //JS Strcture
+<script>
+import axios from 'axios'
 export default {
-    name : 'Tasklist',
-    data(){ //Item List
+    name: 'TaskList',
+    created(){
+        this.getTask();
+    },
+    data(){
         return{
-            task:[
-                {
-                    id:1,
-                    title:'Item A',
-                    status:'todo'
-                },
-                {
-                    id:2,
-                    title:'Item B',
-                    status:'todo'
-                },
-                {
-                    id:3,
-                    title:'Item C',
-                    status:'todo'
-                },
-                {
-                    id:4,
-                    title:'Item D',
-                    status:'doing'
-                },
-                {
-                    id:5,
-                    title:'Item E',
-                    status:'done'
-                },
-            ],
-            newTask : "",
-            editTask : ""
+            newTask: "",
+            editTask: "",
+            tasks:[]
         }
     },
-    computed:{ //Filler Status
-        todoList(){
-            return this.task.filter(task => task.status == 'todo')
+    computed:{
+        taskTodo(){
+            return this.tasks.filter(task => task.status === 'todo')
         },
-        doingList(){
-            return this.task.filter(task => task.status == 'doing')
+        taskDoing(){
+            return this.tasks.filter(task => task.status === 'doing')
         },
-        doneList(){
-             return this.task.filter(task => task.status == 'done')
+        taskDone(){
+            return this.tasks.filter(task => task.status === 'done')
         }
     },
     methods:{
-        onStart(e,task){
-            e.dataTransfer.dropEffect = "move"
-            e.dataTransfer.effectAllowed ="move"
-            e.dataTransfer.setData('taskID', task.id)
+        onStart(e, task){
+            e.dataTransfer.dropEffect = 'move'
+            e.dataTransfer.effectAllowed = 'move'
+            e.dataTransfer.setData('taskId', task.id)
         },
-        onDrop(e,newstatus){
-            const taskId = e.dataTransfer.getData('taskID')
-            const task = this.task.find(task => task.id == taskId)
-            task.status = newstatus
+        onDrop(e, newStatus){
+            const taskId = e.dataTransfer.getData('taskId')
+            const task = this.tasks.find(task => task.id == taskId)
+            task.status = newStatus
         },
-        addTask(newTask){
-            let newID = this.task.length + 1
-            this.task.push({id:newID,title:newTask,status:'todo'})
-            this.newTask = ""
+        async getTask(){
+            const { data } = await axios.get(`http://localhost:3000/tasks`)
+            this.tasks = data
+        },
+        async addTask(newTask){
+            const newTitle = newTask
+            await axios.post(`http://localhost:3000/tasks`, { title: newTitle, status: 'todo' })
+            this.getTask();
+            this.newTask = "";
+        },
+        async deleteTask(taskId){
+            await axios.delete(`http://localhost:3000/tasks/${taskId}`)
+            this.getTask();
         },
         onEdit(task){
             this.editTask = task.id
         },
-        EditedTask(editnewtask){
-            const task = this.task.find(task => task.id == editnewtask.id )
-            task.title = editnewtask.title
-            this.editTask = ""
-        },
-        deleteTask(deleteTask){
-            this.task = this.task.filter(task => task.id != deleteTask.id)
+        async editedTask(updateTask){
+            await axios.put(`http://localhost:3000/tasks/${updateTask.id}`, updateTask)
+            this.editTask = null
+            this.getTask();
         }
     }
 }
 </script>
 
-<style scoped> /* CSS Stucture */
-.container{
-    margin: 30px;
+<style scoped>
+.container, .add-task{
+    margin: 30px 0;
 }
 .task-zone{
     display: flex;
@@ -137,6 +114,7 @@ export default {
 }
 .drop-zone{
     border: 1px solid black;
+    border-radius: 10px;
     width: 250px;
     height: 400px;
     padding: 10px 0;
@@ -145,10 +123,8 @@ export default {
     border: 1px solid black;
     width: 200px;
     height: 40px;
+    border-radius: 10px;
     margin: 5px auto;
-    padding-top: 15px; 
-}
-.add-task{
-    margin: 30px 0;
+    padding-top: 15px;
 }
 </style>

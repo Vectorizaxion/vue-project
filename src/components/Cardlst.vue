@@ -3,8 +3,8 @@
         <div>
             <div class="card" v-for="archives in data" :key="archives.id">
                 <h3> {{archives.date}} : {{archives.time}} </h3>
-                <ul v-for="task in archives.task" :key="task.id">
-                    <li> {{task.id}} - {{task.title}} </li>
+                <ul v-for="tasks in archives.tasks" :key="tasks.id">
+                    <li> {{tasks.id}} - {{tasks.title}} </li>
                 </ul>
             </div>
         </div>
