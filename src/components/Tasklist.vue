@@ -24,7 +24,7 @@
                 <div class="drag-el" draggable @dragstart="onStart($event,task)"  v-for="task in doingList" :key="task.id">
                      <span v-if="editTask != task.id">{{task.title}}</span>
                     <input v-else class="edit-task" type="text" v-model="task.title">
-
+                    
                     <button v-if="editTask != task.id"  type="button" @click="onEdit(task)"> Edit </button>
                     <button v-else type="button" @click="EditedTask(task)"> Save </button>
 
